@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 import json
 import logging
 import os
@@ -8,9 +11,6 @@ import pymongo
 from flask import request
 
 import kiva_client
-from gevent import monkey
-
-monkey.patch_all()
 
 
 logging.basicConfig(level=logging.DEBUG)
