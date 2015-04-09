@@ -47,12 +47,29 @@ def create_user():
 
 @app.route('/profile', methods=['GET'])
 def profile():
+    args = request.args
+
+    if 'id' not in args:
+        logging.warn(
+            '/profile hit without providing id')
+        return flask.jsonify({
+            'error': 'id must be provided'
+        }), 400
+
+    id = args['id']
+    user = db.users.find_one({'_id': id})
+    if not user:
+        logging.warn("no user found with id='{}'".format(id))
+        return flask.jsonify({
+            'error': 'user does not exist'
+        }), 404
+
+    logging.info("getting profile for user {}".format(user))
+
+    client = kiva_client.KivaClient(
+        user['oauth_token'], user['oauth_token_secret'])
+
     profile_data = {}
-
-    # TODO: take tokens from POST body
-    client = kiva_client.KivaClient(oauth_token, oauth_token_secret)
-
-    # step 1
 
     account = client.my_account()['content']
     for k, v in account['user_account'].iteritems():
