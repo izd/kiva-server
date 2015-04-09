@@ -47,16 +47,15 @@ def create_user():
 
 @app.route('/profile', methods=['GET'])
 def profile():
-    args = request.args
+    id = request.headers.get('Authorization', None)
 
-    if 'id' not in args:
+    if not id:
         logging.warn(
-            '/profile hit without providing id')
+            '/profile hit without providing id as Authorization header')
         return flask.jsonify({
             'error': 'id must be provided'
         }), 400
 
-    id = args['id']
     user = db.users.find_one({'_id': id})
     if not user:
         logging.warn("no user found with id='{}'".format(id))
