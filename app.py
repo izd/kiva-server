@@ -88,9 +88,14 @@ def profile():
     for k, v in stats.iteritems():
         profile_data['stats_%s' % k] = v
 
-    print json.dumps(client.my_loans(), indent=True)
+    my_lender = client.my_lender()['content']['lenders'][0]
+    for k, v in my_lender.iteritems():
+        if k == 'image':
+            k = 'image_id'
+            v = v['id']
+        profile_data['lender_%s' % k] = v
 
-    # step 2
+    logging.debug(json.dumps(profile_data, indent=True))
 
     return flask.jsonify(profile_data)
 

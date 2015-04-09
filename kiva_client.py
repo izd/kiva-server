@@ -54,3 +54,6 @@ class KivaClient(object):
 
     def my_loans(self):
         return self.get('my/loans.json')
+
+    def my_lender(self):
+        return self.get('my/lender.json')
