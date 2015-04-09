@@ -1,26 +1,51 @@
-
-import os
 import json
+import logging
+import os
+import uuid
 
 import flask
 import pymongo
+from flask import request
 
 import kiva_client
 
+logging.basicConfig(level=logging.DEBUG)
+
 app = flask.Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 
-mongo_client = pymongo.MongoClient(os.environ['MONGOLAB_URI'])
-mongo_db = mongo_client['main_db']
+connection = pymongo.MongoClient(os.environ['MONGOLAB_URI'])
+db = connection.get_default_database()
 
 
-@app.route('/login')
-def login():
+@app.route('/users', methods=['POST'])
+def create_user():
     """Store access token and secret"""
-    pass
+    payload = json.loads(request.data)
+
+    if 'oauth_token' not in payload or 'oauth_token_secret' not in payload:
+        logging.warn(
+            '/login hit without providing oauth_token or oauth_token_secret')
+        return flask.jsonify({
+            'error': 'oauth_token and oauth_token_secret must be provided'
+        }), 400
+
+    oauth_token = payload['oauth_token']
+    oauth_token_secret = payload['oauth_token_secret']
+    id = str(uuid.uuid4())
+
+    user = {
+        '_id': id,
+        'oauth_token': oauth_token,
+        'oauth_token_secret': oauth_token_secret,
+    }
+
+    db.users.insert_one(user)
+    logging.info("created user {}".format(json.dumps(user)))
+
+    return flask.jsonify(user)
 
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET'])
 def profile():
     profile_data = {}
 
