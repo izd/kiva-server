@@ -1,8 +1,12 @@
 
-import time
 import json
+import os
+import time
+
 import oauth2 as oauth
 
+consumer_key = os.environ['CONSUMER_KEY']
+consumer_secret = os.environ['CONSUMER_SECRET']
 consumer = oauth.Consumer(consumer_key, consumer_secret)
 
 base = 'https://api.kivaws.org/v1/'
@@ -50,3 +54,6 @@ class KivaClient(object):
 
     def my_loans(self):
         return self.get('my/loans.json')
+
+    def my_lender(self):
+        return self.get('my/lender.json')
