@@ -95,6 +95,7 @@ def profile():
             v = v['id']
         profile_data['lender_%s' % k] = v
 
+    logging.debug(json.dumps(profile_data))
     logging.debug(json.dumps(profile_data, indent=True))
 
     return flask.jsonify(profile_data)
