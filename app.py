@@ -13,7 +13,12 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configur
 mongo_client = pymongo.MongoClient(os.environ['MONGOLAB_URI'])
 mongo_db = mongo_client['main_db']
 
-# accept in post from client and store eventually
+
+@app.route('/login')
+def login():
+    """Store access token and secret"""
+    pass
+
 
 @app.route('/profile')
 def profile():
