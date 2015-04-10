@@ -1,6 +1,8 @@
 from gevent import monkey
 monkey.patch_all()
 
+from gevent.pool import Pool
+
 import json
 import logging
 import os
@@ -72,23 +74,36 @@ def profile():
     client = kiva_client.KivaClient(
         user['oauth_token'], user['oauth_token_secret'])
 
+    num_workers = 20
+    pool = Pool(num_workers)
+
+    account_raw, expected_repayments_raw, stats_raw, my_lender_raw = pool.map(
+        executor,
+        [
+            client.my_account,
+            client.my_expected_repayments,
+            client.my_stats,
+            client.my_lender,
+        ],
+    )
+
     profile_data = {}
 
-    account = client.my_account()['content']
+    account = account_raw['content']
     for k, v in account['user_account'].iteritems():
         profile_data['account_%s' % k] = v
 
-    expected_repayments = client.my_expected_repayments()['content']
+    expected_repayments = expected_repayments_raw['content']
     profile_data['expected_repayments'] = []
     for loan_id, loan_data in expected_repayments.iteritems():
         loan_data['id'] = loan_id
         profile_data['expected_repayments'].append(loan_data)
 
-    stats = client.my_stats()['content']
+    stats = stats_raw['content']
     for k, v in stats.iteritems():
         profile_data['stats_%s' % k] = v
 
-    my_lender = client.my_lender()['content']['lenders'][0]
+    my_lender = my_lender_raw['content']['lenders'][0]
     for k, v in my_lender.iteritems():
         if k == 'image':
             k = 'image_id'
@@ -99,6 +114,10 @@ def profile():
     logging.debug(json.dumps(profile_data, indent=True))
 
     return flask.jsonify(profile_data)
+
+
+def executor(func_to_execute):
+    return func_to_execute()
 
 
 @app.errorhandler(404)
