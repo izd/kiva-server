@@ -92,12 +92,12 @@ def profile():
     account = account_raw['content']
     for k, v in account['user_account'].iteritems():
         profile_data['account_%s' % k] = v
-
-    expected_repayments = expected_repayments_raw['content']
-    profile_data['expected_repayments'] = []
-    for loan_id, loan_data in expected_repayments.iteritems():
-        loan_data['id'] = loan_id
-        profile_data['expected_repayments'].append(loan_data)
+    #
+    # expected_repayments = expected_repayments_raw['content']
+    # profile_data['expected_repayments'] = []
+    # for loan_id, loan_data in expected_repayments.iteritems():
+    #     loan_data['id'] = loan_id
+    #     profile_data['expected_repayments'].append(loan_data)
 
     stats = stats_raw['content']
     for k, v in stats.iteritems():
